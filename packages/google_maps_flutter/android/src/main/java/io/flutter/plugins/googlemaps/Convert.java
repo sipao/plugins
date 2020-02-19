@@ -197,6 +197,15 @@ class Convert {
     return data;
   }
 
+  static Object groundOverlayIdToJson(String groundOverlayId) {
+    if (groundOverlayId == null) {
+      return null;
+    }
+    final Map<String, Object> data = new HashMap<>(1);
+    data.put("groundOverlayId", groundOverlayId);
+    return data;
+  }
+
   static Object latLngToJson(LatLng latLng) {
     return Arrays.asList(latLng.latitude, latLng.longitude);
   }
@@ -545,6 +554,25 @@ class Convert {
       throw new IllegalArgumentException("circleId was null");
     } else {
       return circleId;
+    }
+  }
+
+  static String interpretGroundOverlayOptions(Object o, GroundOverlayOptionsSink sink) {
+    final Map<?, ?> data = toMap(o);
+    final Object southWest = data.get("southWest");
+    final Object northEast = data.get("northEast");
+    if (southWest != null && northEast != null) {
+      sink.setBounds(toLatLng(southWest), toLatLng(northEast));
+    }
+    final String assetImageName = (String) data.get("assetImageName");
+    if (assetImageName != null) {
+      sink.setAssetImageName(assetImageName);
+    }
+    final String groundOverlayId = (String) data.get("groundOverlayId");
+    if (groundOverlayId == null) {
+      throw new IllegalArgumentException("groundOverlayId was null");
+    } else {
+      return groundOverlayId;
     }
   }
 

@@ -80,11 +80,14 @@ class GroundOverlay {
     }
 
     print("---addIfPresent");
+    print(groundOverlayId);
+    print(southWest);
+    print(northEast);
     print(assetImageName);
 
     addIfPresent('groundOverlayId', groundOverlayId.value);
-    addIfPresent('southWest', southWest._toJson());
-    addIfPresent('northEast', northEast._toJson());
+    addIfPresent('southWest', southWest != null ? southWest._toJson() : null);
+    addIfPresent('northEast', northEast != null ? northEast._toJson() : null);
     addIfPresent('assetImageName', assetImageName);
 
     return json;

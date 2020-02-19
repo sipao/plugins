@@ -28,6 +28,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -86,10 +87,12 @@ final class GoogleMapController
   private final PolygonsController polygonsController;
   private final PolylinesController polylinesController;
   private final CirclesController circlesController;
+  private final GroundOverlaysController groundOverlaysController;
   private List<Object> initialMarkers;
   private List<Object> initialPolygons;
   private List<Object> initialPolylines;
   private List<Object> initialCircles;
+  private List<Object> initialGroundOverlays;
 
   GoogleMapController(
       int id,
@@ -111,6 +114,7 @@ final class GoogleMapController
     this.polygonsController = new PolygonsController(methodChannel);
     this.polylinesController = new PolylinesController(methodChannel, density);
     this.circlesController = new CirclesController(methodChannel);
+    this.groundOverlaysController = new GroundOverlaysController(methodChannel, registrar);
   }
 
   @Override
@@ -194,10 +198,12 @@ final class GoogleMapController
     polygonsController.setGoogleMap(googleMap);
     polylinesController.setGoogleMap(googleMap);
     circlesController.setGoogleMap(googleMap);
+    groundOverlaysController.setGoogleMap(googleMap);
     updateInitialMarkers();
     updateInitialPolygons();
     updateInitialPolylines();
     updateInitialCircles();
+    updateInitialGroundOverlays();
   }
 
   @Override
@@ -305,16 +311,27 @@ final class GoogleMapController
           break;
         }
       case "circles#update":
-        {
-          Object circlesToAdd = call.argument("circlesToAdd");
-          circlesController.addCircles((List<Object>) circlesToAdd);
-          Object circlesToChange = call.argument("circlesToChange");
-          circlesController.changeCircles((List<Object>) circlesToChange);
-          Object circleIdsToRemove = call.argument("circleIdsToRemove");
-          circlesController.removeCircles((List<Object>) circleIdsToRemove);
-          result.success(null);
-          break;
-        }
+      {
+        Object circlesToAdd = call.argument("circlesToAdd");
+        circlesController.addCircles((List<Object>) circlesToAdd);
+        Object circlesToChange = call.argument("circlesToChange");
+        circlesController.changeCircles((List<Object>) circlesToChange);
+        Object circleIdsToRemove = call.argument("circleIdsToRemove");
+        circlesController.removeCircles((List<Object>) circleIdsToRemove);
+        result.success(null);
+        break;
+      }
+      case "groundOverlays#update":
+      {
+        Object groundOverlaysToAdd = call.argument("groundOverlaysToAdd");
+        groundOverlaysController.addGroundOverlays((List<Object>) groundOverlaysToAdd);
+        Object groundOverlaysToChange = call.argument("groundOverlaysToChange");
+        groundOverlaysController.changeGroundOverlays((List<Object>) groundOverlaysToChange);
+        Object groundOverlayIdsToRemove = call.argument("groundOverlayIdsToRemove");
+        groundOverlaysController.removeGroundOverlays((List<Object>) groundOverlayIdsToRemove);
+        result.success(null);
+        break;
+      }
       case "map#isCompassEnabled":
         {
           result.success(googleMap.getUiSettings().isCompassEnabled());
@@ -680,8 +697,20 @@ final class GoogleMapController
     }
   }
 
+  @Override
+  public void setInitialGroundOverlays(Object initialGroundOverlays) {
+    this.initialGroundOverlays = (List<Object>) initialGroundOverlays;
+    if (googleMap != null) {
+      updateInitialGroundOverlays();
+    }
+  }
+
   private void updateInitialCircles() {
     circlesController.addCircles(initialCircles);
+  }
+
+  private void updateInitialGroundOverlays() {
+    groundOverlaysController.addGroundOverlays(initialGroundOverlays);
   }
 
   @SuppressLint("MissingPermission")
